@@ -114,14 +114,14 @@ pub mod tests {
     const INPUT: &'static str = include_str!("day5_test.txt");
 
     #[test]
-    fn solve_day_five() {
+    fn solve_day_5() {
         let input = parse(INPUT);
         assert_eq!(part1(&input), "CMZ");
         assert_eq!(part2(&input), "MCD");
     }
 
     #[test]
-    fn scan_top() {
+    fn day_5_scan_top() {
         let input = parse(INPUT);
         assert_eq!(input.stacks.scan_top(), "NDP".to_string());
     }

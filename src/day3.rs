@@ -77,7 +77,7 @@ ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw";
 
     #[test]
-    fn solve_day_three() {
+    fn solve_day_3() {
         let input = parse(INPUT);
         assert_eq!(part1(&input), 157);
         assert_eq!(part2(&input), 70);

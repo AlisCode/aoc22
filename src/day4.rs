@@ -60,7 +60,7 @@ pub mod tests {
 2-6,4-8";
 
     #[test]
-    fn solve_day_four() {
+    fn solve_day_4() {
         let input = parse(INPUT);
         assert_eq!(part1(&input), 2);
         assert_eq!(part2(&input), 4);
