@@ -148,8 +148,9 @@ fn part2(notes: &[MonkeyNote]) -> usize {
         })
         .collect();
 
+    let modulus: i64 = notes.iter().map(|note| note.test_divisible_by).product();
     for _ in 0..10000 {
-        do_round(notes, &mut monkeys, |wl| wl / 3);
+        do_round(notes, &mut monkeys, |wl| wl % modulus);
     }
 
     monkeys.sort_by(|a, b| b.total_items.cmp(&a.total_items));
