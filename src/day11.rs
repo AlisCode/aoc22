@@ -1,7 +1,7 @@
 #[derive(Debug)]
 enum Value {
     Old,
-    Fixed(i32),
+    Fixed(i64),
 }
 
 impl Value {
@@ -12,7 +12,7 @@ impl Value {
         }
     }
 
-    fn value(&self, old: i32) -> i32 {
+    fn value(&self, old: i64) -> i64 {
         match self {
             Value::Old => old,
             Value::Fixed(x) => *x,
@@ -38,9 +38,9 @@ impl Operation {
 
 #[derive(Debug)]
 struct MonkeyNote {
-    starting_items: Vec<i32>,
+    starting_items: Vec<i64>,
     operation: Operation,
-    test_divisible_by: i32,
+    test_divisible_by: i64,
     if_true: usize,
     if_false: usize,
 }
@@ -91,10 +91,33 @@ fn parse(input: &str) -> Vec<MonkeyNote> {
     input.split("\n\n").map(MonkeyNote::parse).collect()
 }
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 struct Monkey {
-    worry_levels: Vec<i32>,
+    worry_levels: Vec<i64>,
     total_items: usize,
+}
+
+fn do_round<F: Fn(i64) -> i64>(notes: &[MonkeyNote], monkeys: &mut Vec<Monkey>, reduce_worry: F) {
+    for i in 0..monkeys.len() {
+        let mut send_list = Vec::new();
+        monkeys[i].total_items += monkeys[i].worry_levels.len();
+        for item in monkeys[i].worry_levels.drain(..) {
+            let worry_level = match &notes[i].operation {
+                Operation::Add(v) => item + v.value(item),
+                Operation::Mul(v) => item * v.value(item),
+            };
+            let worry_level = reduce_worry(worry_level);
+            let target_monkey = match worry_level % notes[i].test_divisible_by == 0 {
+                true => notes[i].if_true,
+                false => notes[i].if_false,
+            };
+            send_list.push((target_monkey, worry_level));
+        }
+
+        for (i, wl) in send_list {
+            monkeys[i].worry_levels.push(wl);
+        }
+    }
 }
 
 #[aoc(day11, part1)]
@@ -108,24 +131,25 @@ fn part1(notes: &[MonkeyNote]) -> usize {
         .collect();
 
     for _ in 0..20 {
-        for i in 0..monkeys.len() {
-            let mut monkey = Monkey::default();
-            std::mem::swap(&mut monkey, &mut monkeys[i]);
-            monkey.total_items += monkey.worry_levels.len();
-            for item in monkey.worry_levels.drain(..) {
-                let worry_level = match &notes[i].operation {
-                    Operation::Add(v) => item + v.value(item),
-                    Operation::Mul(v) => item * v.value(item),
-                } / 3;
-                let target = if worry_level % notes[i].test_divisible_by == 0 {
-                    notes[i].if_true
-                } else {
-                    notes[i].if_false
-                };
-                monkeys[target].worry_levels.push(worry_level);
-            }
-            std::mem::swap(&mut monkey, &mut monkeys[i]);
-        }
+        do_round(notes, &mut monkeys, |wl| wl / 3);
+    }
+
+    monkeys.sort_by(|a, b| b.total_items.cmp(&a.total_items));
+    monkeys.iter().take(2).map(|m| m.total_items).product()
+}
+
+#[aoc(day11, part2)]
+fn part2(notes: &[MonkeyNote]) -> usize {
+    let mut monkeys: Vec<Monkey> = notes
+        .iter()
+        .map(|note| Monkey {
+            worry_levels: note.starting_items.clone(),
+            total_items: 0,
+        })
+        .collect();
+
+    for _ in 0..10000 {
+        do_round(notes, &mut monkeys, |wl| wl / 3);
     }
 
     monkeys.sort_by(|a, b| b.total_items.cmp(&a.total_items));
@@ -168,6 +192,6 @@ Monkey 3:
     fn solve_day_11() {
         let input = parse(INPUT);
         assert_eq!(part1(&input), 10605);
-        //assert!(false);
+        assert_eq!(part2(&input), 2713310158);
     }
 }
