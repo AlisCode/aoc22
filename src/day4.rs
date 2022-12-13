@@ -1,3 +1,4 @@
+use aoc_parse::prelude::*;
 use std::ops::RangeInclusive;
 
 #[derive(Debug)]
@@ -15,21 +16,16 @@ fn range_overlaps(r: &RangeInclusive<usize>, r2: &RangeInclusive<usize>) -> bool
 }
 
 #[aoc_generator(day4)]
-fn parse(input: &str) -> Vec<Assignment> {
-    input
-        .lines()
-        .map(|l| {
-            let mut ranges = l.split(',').map(|s| {
-                let mut splitted = s.split('-');
-                let start = splitted.next().unwrap().parse::<usize>().unwrap();
-                let end = splitted.next().unwrap().parse::<usize>().unwrap();
-                start..=end
-            });
-            let one = ranges.next().unwrap();
-            let two = ranges.next().unwrap();
-            Assignment { one, two }
-        })
-        .collect()
+fn parse(input: &str) -> anyhow::Result<Vec<Assignment>> {
+    aoc_parse(
+        input,
+        parser!(
+            lines(
+                a:usize "-" b:usize "," c:usize "-" d:usize
+                => Assignment { one: (a..=b), two: (c..=d) }
+            )
+        ),
+    )
 }
 
 #[aoc(day4, part1)]
@@ -61,7 +57,7 @@ pub mod tests {
 
     #[test]
     fn solve_day_4() {
-        let input = parse(INPUT);
+        let input = parse(INPUT).unwrap();
         assert_eq!(part1(&input), 2);
         assert_eq!(part2(&input), 4);
     }

@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate aoc_runner_derive;
 
+#[macro_use]
+extern crate aoc_parse;
+
 pub mod day1;
 pub mod day10;
 pub mod day11;
