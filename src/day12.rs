@@ -11,8 +11,8 @@ fn parse(input: &str) -> Heightmap {
     let mut map = Matrix::from_rows(input.lines().map(str::bytes)).expect("Failed to build map");
     // I'm very sad we can't find those in one pass (when building the Matrix),
     // but I couldn't find how!
-    let start = map.indices().find(|p| map[*p] == b'S').unwrap();
-    let end = map.indices().find(|p| map[*p] == b'E').unwrap();
+    let start = map.keys().find(|p| map[*p] == b'S').unwrap();
+    let end = map.keys().find(|p| map[*p] == b'E').unwrap();
     map[start] = b'a';
     map[end] = b'z';
     Heightmap { map, start, end }
